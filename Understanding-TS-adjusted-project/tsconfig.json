@@ -2,8 +2,10 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "removeComments": true,
+    "noEmitOnError": true,
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -11,12 +13,12 @@
     "module": "ES6",
     "types": [],
     // For nodejs:
-    // "lib": ["esnext"],
+    "lib": ["DOM", "ES6", "DOM.Iterable", "ScriptHost"],
     // "types": ["node"],
     // and npm install -D @types/node
 
     // Other Outputs
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
     "declarationMap": true,
 
@@ -25,6 +27,7 @@
     "exactOptionalPropertyTypes": true,
 
     // Style Options
+    "noImplicitAny": true,
     // "noImplicitReturns": true,
     // "noImplicitOverride": true,
     // "noUnusedLocals": true,
@@ -39,6 +42,8 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
-  }
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"] //would be default
 }

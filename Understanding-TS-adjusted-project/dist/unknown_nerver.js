@@ -7,9 +7,7 @@ if (typeof userInput === "string") {
 }
 function generateError(message, code) {
     throw { message: message, errorCode: code };
-    //   while(true){}
 }
 const result = generateError("エラーが発生しました", 500);
 console.log(result);
 export {};
-//# sourceMappingURL=unknown_nerver.js.map
