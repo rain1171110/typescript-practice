@@ -1,10 +1,11 @@
 class Department {
-    constructor(n) {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
         this.employees = [];
-        this.name = n;
     }
     describe() {
-        console.log("Department:" + this.name);
+        console.log(`Department (${this.id}:${this.name})`);
     }
     addEmployee(employee) {
         this.employees.push(employee);
@@ -14,11 +15,17 @@ class Department {
         console.log(this.employees);
     }
 }
-const accounting = new Department("Accounting");
-accounting.addEmployee("Max");
-accounting.addEmployee("Mai");
-accounting.name = "NEW NAME";
-accounting.describe();
-accounting.printEmployeeInformation();
+class ITDepartment extends Department {
+    constructor(id, admins) {
+        super(id, "IT");
+        this.admins = admins;
+    }
+}
+const it = new ITDepartment("d1", ["Max"]);
+it.addEmployee("Max");
+it.addEmployee("Mai");
+it.describe();
+it.printEmployeeInformation();
+console.log(it);
 export {};
 //# sourceMappingURL=app.js.map
