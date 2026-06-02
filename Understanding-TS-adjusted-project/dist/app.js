@@ -21,11 +21,51 @@ class ITDepartment extends Department {
         this.admins = admins;
     }
 }
+class AccountingDepartment extends Department {
+    get mostRecentReport() {
+        if (this.lastReport) {
+            return this.lastReport;
+        }
+        throw new Error("レポートが見つかりません");
+    }
+    set mostRecentReport(value) {
+        if (!value) {
+            throw new Error("正しい値を設定してください。");
+        }
+        this.addReport(value);
+    }
+    constructor(id, reports) {
+        super(id, "Accounting");
+        this.reports = reports;
+        this.lastReport = reports[0];
+    }
+    addReport(text) {
+        this.reports.push(text);
+        this.lastReport = text;
+    }
+    printReports() {
+        console.log(this.reports);
+    }
+    addEmployee(name) {
+        if (name === "Max") {
+            return;
+        }
+        this.employees.push(name);
+    }
+}
 const it = new ITDepartment("d1", ["Max"]);
 it.addEmployee("Max");
 it.addEmployee("Mai");
 it.describe();
 it.printEmployeeInformation();
 console.log(it);
+const accounting = new AccountingDepartment("d2", []);
+accounting.mostRecentReport = "通期会計レポート";
+console.log(accounting.mostRecentReport);
+accounting.addReport("Something");
+accounting.printReports();
+accounting.addEmployee("Max");
+accounting.addEmployee("Mai");
+accounting.printEmployeeInformation();
 export {};
 //# sourceMappingURL=app.js.map
