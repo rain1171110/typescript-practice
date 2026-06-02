@@ -1,11 +1,12 @@
 class Department {
+    static createEmployee(name) {
+        return { name: name };
+    }
     constructor(id, name) {
         this.id = id;
         this.name = name;
         this.employees = [];
-    }
-    describe() {
-        console.log(`Department (${this.id}:${this.name})`);
+        console.log(Department.fiscalYear);
     }
     addEmployee(employee) {
         this.employees.push(employee);
@@ -15,10 +16,14 @@ class Department {
         console.log(this.employees);
     }
 }
+Department.fiscalYear = 2020;
 class ITDepartment extends Department {
     constructor(id, admins) {
         super(id, "IT");
         this.admins = admins;
+    }
+    describe() {
+        console.log("IT部門 - ID: " + this.id);
     }
 }
 class AccountingDepartment extends Department {
@@ -39,6 +44,9 @@ class AccountingDepartment extends Department {
         this.reports = reports;
         this.lastReport = reports[0];
     }
+    describe() {
+        console.log("会計部門- ID: " + this.id);
+    }
     addReport(text) {
         this.reports.push(text);
         this.lastReport = text;
@@ -53,6 +61,8 @@ class AccountingDepartment extends Department {
         this.employees.push(name);
     }
 }
+const employee1 = Department.createEmployee("Max");
+console.log(employee1, Department.fiscalYear);
 const it = new ITDepartment("d1", ["Max"]);
 it.addEmployee("Max");
 it.addEmployee("Mai");
@@ -63,9 +73,8 @@ const accounting = new AccountingDepartment("d2", []);
 accounting.mostRecentReport = "通期会計レポート";
 console.log(accounting.mostRecentReport);
 accounting.addReport("Something");
-accounting.printReports();
 accounting.addEmployee("Max");
 accounting.addEmployee("Mai");
-accounting.printEmployeeInformation();
+accounting.describe();
 export {};
 //# sourceMappingURL=app.js.map

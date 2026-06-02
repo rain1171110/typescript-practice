@@ -1,19 +1,24 @@
-class Department {
+abstract class Department {
+  static fiscalYear = 2020;
+
   // private readonly id = string;
   // name: string;
   protected employees: string[] = [];
 
+  static createEmployee(name: string) {
+    return { name: name };
+  }
+
   constructor(
-    private readonly id: string,
+    protected readonly id: string,
     public name: string,
   ) {
+    console.log(Department.fiscalYear);
     // this.id = id;
     // this.name = n;
   }
 
-  describe(this: Department) {
-    console.log(`Department (${this.id}:${this.name})`);
-  }
+  abstract describe(this: Department): void;
 
   addEmployee(employee: string) {
     this.employees.push(employee);
@@ -31,6 +36,10 @@ class ITDepartment extends Department {
     super(id, "IT");
     this.admins = admins;
   }
+
+  describe() {
+    console.log("IT部門 - ID: " + this.id);
+  }
 }
 
 class AccountingDepartment extends Department {
@@ -44,9 +53,9 @@ class AccountingDepartment extends Department {
   }
 
   set mostRecentReport(value: string) {
-  if(!value) {
-    throw new Error("正しい値を設定してください。");
-  }
+    if (!value) {
+      throw new Error("正しい値を設定してください。");
+    }
     this.addReport(value);
   }
 
@@ -56,6 +65,10 @@ class AccountingDepartment extends Department {
   ) {
     super(id, "Accounting");
     this.lastReport = reports[0]!;
+  }
+
+  describe() {
+    console.log("会計部門- ID: " + this.id);
   }
 
   addReport(text: string) {
@@ -75,6 +88,9 @@ class AccountingDepartment extends Department {
   }
 }
 
+const employee1 = Department.createEmployee("Max");
+console.log(employee1, Department.fiscalYear);
+
 const it = new ITDepartment("d1", ["Max"]);
 
 it.addEmployee("Max");
@@ -93,12 +109,13 @@ const accounting = new AccountingDepartment("d2", []);
 accounting.mostRecentReport = "通期会計レポート";
 console.log(accounting.mostRecentReport);
 accounting.addReport("Something");
-accounting.printReports();
 
 accounting.addEmployee("Max");
 accounting.addEmployee("Mai");
 
-accounting.printEmployeeInformation();
+// accounting.printReports();
+// accounting.printEmployeeInformation();
+accounting.describe();
 
 // const accountingCopy = {name:"Dummy", describe: accounting.describe };
 
