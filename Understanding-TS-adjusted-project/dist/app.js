@@ -1,27 +1,10 @@
-let add;
-add = (n1, n2) => {
-    return n1 + n2;
+const e1 = {
+    name: "Max",
+    privileges: ["create-server"],
+    startDate: new Date(),
 };
-class Person {
-    constructor(n) {
-        this.age = 30;
-        if (n) {
-            this.name = n;
-        }
-    }
-    greet(phrase) {
-        if (this.name) {
-            console.log(phrase + " " + this.name);
-        }
-        else {
-            console.log("Hi!");
-        }
-    }
-}
-let user1;
-user1 = new Person();
-console.log(add(1, 2));
-user1.greet("Hello I am");
-console.log(user1);
+console.log(e1);
+const value = 42;
+console.log(value);
 export {};
 //# sourceMappingURL=app.js.map
