@@ -58,5 +58,15 @@ function moveAnimal(animal) {
     console.log("移動速度:" + speed);
 }
 moveAnimal({ type: "bird", flyingSpeed: 10 });
+const userInputElement = document.getElementById("user-input");
+if (userInputElement) {
+    userInputElement.value = "こんにちは";
+}
+console.log(userInputElement);
+const errorBag = {
+    email: "正しいメールアドレスではありません",
+    username: "ユーザ名に記号を含めることはできません。",
+};
+console.log(errorBag);
 export {};
 //# sourceMappingURL=app.js.map

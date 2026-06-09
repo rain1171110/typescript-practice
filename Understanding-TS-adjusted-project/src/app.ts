@@ -104,4 +104,23 @@ function moveAnimal(animal: Animal) {
   console.log("移動速度:" + speed);
 }
 
-moveAnimal({ type: "bird",flyingSpeed:10 });
+moveAnimal({ type: "bird", flyingSpeed: 10 });
+
+// const userInputElement = <HTMLInputElement>document.getElementById("user-input")!;
+const userInputElement = document.getElementById("user-input");
+
+if (userInputElement) {
+  (userInputElement as HTMLInputElement).value = "こんにちは";
+}
+console.log(userInputElement);
+
+interface ErrorContainer {
+  //{email:"正しいメールアドレスではありません", username: "ユーザ名に記号を含めることはできません。"}
+  [prop: string]: string;
+}
+
+const errorBag: ErrorContainer = {
+  email:"正しいメールアドレスではありません",
+  username:"ユーザ名に記号を含めることはできません。",
+};
+console.log(errorBag);
