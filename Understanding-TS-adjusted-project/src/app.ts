@@ -28,13 +28,41 @@ type Universal = Combinable & Numeric;
 const value: Universal = 42;
 console.log(value);
 
+function add(a: number, b: number): number;
+function add(a: string, b: string): string;
+function add(a: string, b: number): string;
+function add(a: number, b: string): string;
+
 function add(a: Combinable, b: Combinable) {
   if (typeof a === "string" || typeof b === "string") {
     return a.toString() + b.toString();
   }
   return a + b;
 }
+
+const result = add("Hello ", "TypeScript");
+result.split(" ");
+
+console.log(result);
+
 console.log(add(2, 5));
+
+const fetchedUserData = {
+  id: "u1",
+  name: "user1",
+  job: {
+    title: "Developer",
+    description: "TypeScript",
+  },
+};
+
+console.log(fetchedUserData?.job?.title);
+
+const userInput = null;
+
+const storedData = userInput ?? "DEFAULT";
+
+console.log(storedData);
 
 type UnknownEmployee = Employee | Admin;
 
@@ -60,6 +88,7 @@ class Truck {
   drive() {
     console.log("トラックを運転中...");
   }
+
   loadCargo(amount: number) {
     console.log("荷物を載せています..." + amount);
   }
@@ -112,7 +141,7 @@ const userInputElement = document.getElementById("user-input");
 if (userInputElement) {
   (userInputElement as HTMLInputElement).value = "こんにちは";
 }
-console.log(userInputElement);
+console.log((userInputElement as HTMLInputElement).value);
 
 interface ErrorContainer {
   //{email:"正しいメールアドレスではありません", username: "ユーザ名に記号を含めることはできません。"}
@@ -120,7 +149,7 @@ interface ErrorContainer {
 }
 
 const errorBag: ErrorContainer = {
-  email:"正しいメールアドレスではありません",
-  username:"ユーザ名に記号を含めることはできません。",
+  email: "正しいメールアドレスではありません",
+  username: "ユーザ名に記号を含めることはできません。",
 };
 console.log(errorBag);
