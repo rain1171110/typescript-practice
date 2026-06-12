@@ -110,12 +110,12 @@ useVehicle(v1);
 useVehicle(v2);
 
 interface Bird {
-  type: "bird";
+  type: "鳥";
   flyingSpeed: number;
 }
 
 interface Horse {
-  type: "horse";
+  type: "馬";
   runningSpeed: number;
 }
 
@@ -124,16 +124,17 @@ type Animal = Bird | Horse;
 function moveAnimal(animal: Animal) {
   let speed;
   switch (animal.type) {
-    case "bird":
+    case "鳥":
       speed = animal.flyingSpeed;
       break;
-    case "horse":
+    case "馬":
       speed = animal.runningSpeed;
   }
-  console.log("移動速度:" + speed);
+  console.log(`${animal.type}の移動速度:` + speed);
 }
 
-moveAnimal({ type: "bird", flyingSpeed: 10 });
+moveAnimal({ type: "鳥", flyingSpeed:10 });
+moveAnimal({ type: "馬", runningSpeed: 20 });
 
 // const userInputElement = <HTMLInputElement>document.getElementById("user-input")!;
 const userInputElement = document.getElementById("user-input");
