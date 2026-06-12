@@ -1,156 +1,27 @@
-type Admin = {
-  name: string;
-  privileges: string[];
-};
+// const names: Array<string> = []; //string[]
+// // names[0]?.split(" ");
 
-type Employee = {
-  name: string;
-  startDate: Date;
-};
+// console.log(names);
 
-// interface ElevatedEmployee extends Employee, Admin {}
+// const promise = new Promise<string>((resolve, reject) => {
+//   setTimeout(() => {
+//     resolve("終わりました");
+//   }, 2000);
+// });
 
-type ElevatedEmployee = Admin & Employee;
+// promise.then(data => {
+//     data.split(" ");
+// });
 
-const e1: ElevatedEmployee = {
-  name: "Max",
-  privileges: ["create-server"],
-  startDate: new Date(),
-};
+// console.log(promise);
 
-console.log(e1);
-
-type Combinable = string | number;
-type Numeric = number | boolean;
-
-type Universal = Combinable & Numeric;
-
-const value: Universal = 42;
-console.log(value);
-
-function add(a: number, b: number): number;
-function add(a: string, b: string): string;
-function add(a: string, b: number): string;
-function add(a: number, b: string): string;
-
-function add(a: Combinable, b: Combinable) {
-  if (typeof a === "string" || typeof b === "string") {
-    return a.toString() + b.toString();
-  }
-  return a + b;
+function merge<T extends {}, U>(objA: T, objB: U) {
+  return Object.assign(objA, objB);
 }
 
-const result = add("Hello ", "TypeScript");
-result.split(" ");
+const mergedObj = merge({ name: "Max", hobbies: ["Sports"] }, { age: 30 });
+const mergedObj2 = merge({ name: "Max" }, { age: 30 });
 
-console.log(result);
 
-console.log(add(2, 5));
-
-const fetchedUserData = {
-  id: "u1",
-  name: "user1",
-  job: {
-    title: "Developer",
-    description: "TypeScript",
-  },
-};
-
-console.log(fetchedUserData?.job?.title);
-
-const userInput = null;
-
-const storedData = userInput ?? "DEFAULT";
-
-console.log(storedData);
-
-type UnknownEmployee = Employee | Admin;
-
-function printEmployeeInformation(emp: UnknownEmployee) {
-  console.log(emp.name);
-  if ("privileges" in emp) {
-    console.log("Privileges:" + emp.privileges);
-  }
-  if ("startDate" in emp) {
-    console.log("Privileges:" + emp.startDate);
-  }
-}
-
-printEmployeeInformation({ name: "Manu", startDate: new Date() });
-
-class Car {
-  drive() {
-    console.log("運転中...");
-  }
-}
-
-class Truck {
-  drive() {
-    console.log("トラックを運転中...");
-  }
-
-  loadCargo(amount: number) {
-    console.log("荷物を載せています..." + amount);
-  }
-}
-
-type Vehicle = Car | Truck;
-
-const v1 = new Car();
-const v2 = new Truck();
-
-function useVehicle(vehicle: Vehicle) {
-  vehicle.drive();
-  if (vehicle instanceof Truck) {
-    vehicle.loadCargo(1000);
-  }
-}
-
-useVehicle(v1);
-useVehicle(v2);
-
-interface Bird {
-  type: "鳥";
-  flyingSpeed: number;
-}
-
-interface Horse {
-  type: "馬";
-  runningSpeed: number;
-}
-
-type Animal = Bird | Horse;
-
-function moveAnimal(animal: Animal) {
-  let speed;
-  switch (animal.type) {
-    case "鳥":
-      speed = animal.flyingSpeed;
-      break;
-    case "馬":
-      speed = animal.runningSpeed;
-  }
-  console.log(`${animal.type}の移動速度:` + speed);
-}
-
-moveAnimal({ type: "鳥", flyingSpeed:10 });
-moveAnimal({ type: "馬", runningSpeed: 20 });
-
-// const userInputElement = <HTMLInputElement>document.getElementById("user-input")!;
-const userInputElement = document.getElementById("user-input");
-
-if (userInputElement) {
-  (userInputElement as HTMLInputElement).value = "こんにちは";
-}
-console.log((userInputElement as HTMLInputElement).value);
-
-interface ErrorContainer {
-  //{email:"正しいメールアドレスではありません", username: "ユーザ名に記号を含めることはできません。"}
-  [prop: string]: string;
-}
-
-const errorBag: ErrorContainer = {
-  email: "正しいメールアドレスではありません",
-  username: "ユーザ名に記号を含めることはできません。",
-};
-console.log(errorBag);
+console.log(mergedObj);
+console.log(mergedObj2);
