@@ -1,110 +1,38 @@
-// const names: Array<string> = []; //string[]
-// // names[0]?.split(" ");
-
-// console.log(names);
-
-// const promise = new Promise<string>((resolve, reject) => {
-//   setTimeout(() => {
-//     resolve("終わりました");
-//   }, 2000);
-// });
-
-// promise.then(data => {
-//     data.split(" ");
-// });
-
-// console.log(promise);
-
-function merge<T extends object, U extends object>(objA: T, objB: U) {
-  return Object.assign(objA, objB);
+function Logger(logString: string) {
+  return function (constructor: Function) {
+    console.log(logString);
+    console.log(constructor);
+  };
 }
 
-const mergedObj = merge({ name: "Max", hobbies: ["Sports"] }, { age: 30 });
+function WithTemplate(template: string, hookId: string) {
+  return function (constructor: any) {
+    console.log("constructor:", constructor);
+    console.log("constructor.name:", constructor.name);
 
-console.log(mergedObj);
+    const hookEl = document.getElementById(hookId);
+    const p = new constructor();
 
-interface Lengthy {
-  length: number;
+    console.log("p:", p);
+    console.log("p.name:", p.name);
+
+    if (hookEl) {
+      hookEl.innerHTML = template;
+      hookEl.querySelector("h1")!.textContent = p.name;
+    }
+  };
 }
 
-function countAndDescribe<T extends Lengthy>(element: T): [T, string] {
-  let descriptionText = "値がありません";
-  if (element.length > 0) {
-    descriptionText = "値は" + element.length + "個です。";
-  }
-  return [element, descriptionText];
-}
+// @Logger("ログ出力中 -PERSON")
+@WithTemplate("<h1>Personオブジェクト</h1>", "app")
+class Person {
+  name = "Max";
 
-console.log(countAndDescribe(["Sports", "Cooking"]));
-
-function extractAndConvert<T extends object, U extends keyof T>(
-  obj: T,
-  key: U,
-) {
-  return "Value: " + obj[key];
-}
-
-extractAndConvert({ name: "Max" }, "name");
-
-class DataStorage<T extends string | number | boolean> {
-  private data: T[] = [];
-
-  addItem(item: T) {
-    this.data.push(item);
-  }
-
-  removeItem(item: T) {
-    this.data.splice(this.data.indexOf(item), 1);
-  }
-
-  getItems() {
-    return [...this.data];
+  constructor() {
+    console.log("Personオブジェクト作成中…");
   }
 }
 
-const textStorage = new DataStorage<string>();
-textStorage.addItem("Data1");
-textStorage.addItem("Data2");
-textStorage.removeItem("Data1");
-console.log(textStorage.getItems());
+const pers = new Person();
 
-const numberStorage = new DataStorage<number>();
-numberStorage.addItem(30);
-numberStorage.removeItem(30);
-numberStorage.addItem(40);
-console.log(numberStorage.getItems());
-
-// const objStorage = new DataStorage<object>();
-// const obj = {name:"Max"};
-// objStorage.addItem(obj);
-// objStorage.addItem({name:"Manu"});
-// //...
-// objStorage.removeItem(obj);
-// console.log(objStorage.getItems());
-
-interface CourseGoal {
-  title: string;
-  description: string;
-  completeUntil: Date;
-}
-
-function createCourseGoal(
-  title: string,
-  description: string,
-  date: Date,
-): CourseGoal {
-  let courseGoal: Partial<CourseGoal> = {};
-  courseGoal.title = title;
-  courseGoal.description = description;
-  courseGoal.completeUntil = date;
-  return courseGoal as CourseGoal;
-}
-
-const names: Readonly<string[]> = ["Max", "Anna"];
-// name.push("Manu");
-// name.push("Manu");
-
-
-console.log(createCourseGoal)
-
-console.log(names)
+console.log(pers);

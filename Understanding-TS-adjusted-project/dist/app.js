@@ -1,53 +1,39 @@
-function merge(objA, objB) {
-    return Object.assign(objA, objB);
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+function Logger(logString) {
+    return function (constructor) {
+        console.log(logString);
+        console.log(constructor);
+    };
 }
-const mergedObj = merge({ name: "Max", hobbies: ["Sports"] }, { age: 30 });
-console.log(mergedObj);
-function countAndDescribe(element) {
-    let descriptionText = "値がありません";
-    if (element.length > 0) {
-        descriptionText = "値は" + element.length + "個です。";
-    }
-    return [element, descriptionText];
+function WithTemplate(template, hookId) {
+    return function (constructor) {
+        console.log("constructor:", constructor);
+        console.log("constructor.name:", constructor.name);
+        const hookEl = document.getElementById(hookId);
+        const p = new constructor();
+        console.log("p:", p);
+        console.log("p.name:", p.name);
+        if (hookEl) {
+            hookEl.innerHTML = template;
+            hookEl.querySelector("h1").textContent = p.name;
+        }
+    };
 }
-console.log(countAndDescribe(["Sports", "Cooking"]));
-function extractAndConvert(obj, key) {
-    return "Value: " + obj[key];
-}
-extractAndConvert({ name: "Max" }, "name");
-class DataStorage {
+let Person = class Person {
     constructor() {
-        this.data = [];
+        this.name = "Max";
+        console.log("Personオブジェクト作成中…");
     }
-    addItem(item) {
-        this.data.push(item);
-    }
-    removeItem(item) {
-        this.data.splice(this.data.indexOf(item), 1);
-    }
-    getItems() {
-        return [...this.data];
-    }
-}
-const textStorage = new DataStorage();
-textStorage.addItem("Data1");
-textStorage.addItem("Data2");
-textStorage.removeItem("Data1");
-console.log(textStorage.getItems());
-const numberStorage = new DataStorage();
-numberStorage.addItem(30);
-numberStorage.removeItem(30);
-numberStorage.addItem(40);
-console.log(numberStorage.getItems());
-function createCourseGoal(title, description, date) {
-    let courseGoal = {};
-    courseGoal.title = title;
-    courseGoal.description = description;
-    courseGoal.completeUntil = date;
-    return courseGoal;
-}
-const names = ["Max", "Anna"];
-console.log(createCourseGoal);
-console.log(names);
+};
+Person = __decorate([
+    WithTemplate("<h1>Personオブジェクト</h1>", "app")
+], Person);
+const pers = new Person();
+console.log(pers);
 export {};
 //# sourceMappingURL=app.js.map
