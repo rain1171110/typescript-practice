@@ -8,16 +8,20 @@ function Logger(logString: string) {
 
 function WithTemplate(template: string, hookId: string) {
   console.log("TEMPLATE ファクトリ");
-  return function (constructor: any) {
-    console.log("テンプレートを表示");
+  return function <T extends{new(...args: any[]): {name:string}}>(originalConstructor: T) {
+    return class extends originalConstructor {
+      constructor(..._args: any[]) {
+        super();
+        console.log("テンプレートを表示");
 
-    const hookEl = document.getElementById(hookId);
-    const p = new constructor();
+        const hookEl = document.getElementById(hookId);
 
-    if (hookEl) {
-      hookEl.innerHTML = template;
-      hookEl.querySelector("h1")!.textContent = p.name;
-    }
+        if (hookEl) {
+          hookEl.innerHTML = template;
+          hookEl.querySelector("h1")!.textContent = this.name;
+        }
+      }
+    };
   };
 }
 
@@ -92,3 +96,6 @@ class Product {
     return this._price * (1 + tax);
   }
 }
+
+const p1 = new Product("Book", 100);
+const p2 = new Product("Book2", 100);
