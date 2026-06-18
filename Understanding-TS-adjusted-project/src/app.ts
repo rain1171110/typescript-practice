@@ -8,7 +8,9 @@ function Logger(logString: string) {
 
 function WithTemplate(template: string, hookId: string) {
   console.log("TEMPLATE ファクトリ");
-  return function <T extends{new(...args: any[]): {name:string}}>(originalConstructor: T) {
+  return function <T extends { new (...args: any[]): { name: string } }>(
+    originalConstructor: T,
+  ) {
     return class extends originalConstructor {
       constructor(..._args: any[]) {
         super();
@@ -99,3 +101,33 @@ class Product {
 
 const p1 = new Product("Book", 100);
 const p2 = new Product("Book2", 100);
+
+function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const adjDescriptor: PropertyDescriptor = {
+    configurable: true,
+    enumerable: false,
+    get() {
+      const boundFn = originalMethod.bind(this);
+      return boundFn;
+    },
+  };
+  return adjDescriptor;
+}
+
+class Printer {
+  message = "クリックしました";
+
+  @Autobind
+  showMessage() {
+    console.log(this.message);
+  }
+}
+
+const p = new Printer();
+
+const button = document.querySelector("button")!;
+button.addEventListener("click", p.showMessage);
+
+
+
