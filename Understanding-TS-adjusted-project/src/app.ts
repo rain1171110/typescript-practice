@@ -129,11 +129,11 @@ const p = new Printer();
 const button = document.querySelector("button")!;
 button.addEventListener("click", p.showMessage);
 
-//---
+//----------------------------------------------------------------
 
 interface validatorConfig {
   [prop: string]: {
-    [validatebleProp: string]: string[]; // ["required","positive"]
+    [validatableProp: string]: string[]; // ["required","positive"]
   };
 }
 
@@ -141,23 +141,52 @@ const registeredValidators: validatorConfig = {};
 
 function Required(target: any, propName: string) {
   registeredValidators[target.constructor.name] = {
-    [propName]: ["required"],
+    ...registeredValidators[target.constructor.name],
+    [propName]: [
+      ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
+      "required",
+    ],
   };
 }
 
 function PositiveNumber(target: any, propName: string) {
   registeredValidators[target.constructor.name] = {
-    [propName]: ["positive"],
+    ...registeredValidators[target.constructor.name],
+    [propName]: [
+      ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
+      "positive",
+    ],
   };
 }
 
-function validate(obj: object) {
+function validate(obj: any) {
   const objValidatorConfig = registeredValidators[obj.constructor.name];
+
   if (!objValidatorConfig) {
     return true;
   }
+
+  let isValid = true;
+
   for (const prop in objValidatorConfig) {
+    const validators = objValidatorConfig[prop];
+
+    if (!validators) {
+      continue;
+    }
+
+    for (const validator of validators) {
+      switch (validator) {
+        case "required":
+          isValid = isValid && !!obj[prop];
+          break;
+        case "positive":
+          isValid = isValid && obj[prop] > 0;
+          break;
+      }
+    }
   }
+  return isValid;
 }
 
 class Course {
