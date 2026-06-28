@@ -136,11 +136,87 @@
 // });
 
 //模範解答-------------------------------------------------------------------------------------
+//autobind decorator
 
+function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const adjDescriptor: PropertyDescriptor = {
+    configurable: true,
+    get() {
+      const boundFn = originalMethod.bind(this);
+      return boundFn;
+    },
+  };
+  return adjDescriptor;
+}
+
+//interface
+interface validatorConfig {
+  [prop: string]: {
+    [validatableProp: string]: string[]; // ["required","positive"]
+  };
+}
+
+const registeredValidators: validatorConfig = {};
+
+function Required(target: any, propName: string) {
+  registeredValidators[target.constructor.name] = {
+    ...registeredValidators[target.constructor.name],
+    [propName]: [
+      ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
+      "required",
+    ],
+  };
+}
+
+function PositiveNumber(target: any, propName: string) {
+  registeredValidators[target.constructor.name] = {
+    ...registeredValidators[target.constructor.name],
+    [propName]: [
+      ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
+      "positive",
+    ],
+  };
+}
+
+function validate(obj: any) {
+  const objValidatorConfig = registeredValidators[obj.constructor.name];
+
+  if (!objValidatorConfig) {
+    return true;
+  }
+
+  let isValid = true;
+
+  for (const prop in objValidatorConfig) {
+    const validators = objValidatorConfig[prop];
+
+    if (!validators) {
+      continue;
+    }
+
+    for (const validator of validators) {
+      switch (validator) {
+        case "required":
+          isValid = isValid && !!obj[prop];
+          break;
+        case "positive":
+          isValid = isValid && obj[prop] > 0;
+          break;
+      }
+    }
+  }
+  return isValid;
+}
+
+//ProjectInput Class
 class ProjectInput {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
-  element:HTMLFormElement;
+  element: HTMLFormElement;
+  titleInputElement: HTMLInputElement;
+  descriptionInputElement: HTMLTextAreaElement;
+  mandayInputElement: HTMLInputElement;
 
   constructor() {
     this.templateElement = document.getElementById(
@@ -148,14 +224,67 @@ class ProjectInput {
     )! as HTMLTemplateElement;
     this.hostElement = document.getElementById("app")! as HTMLDivElement;
 
-    const importedNode = document.importNode(this.templateElement.content,true);
+    const importedNode = document.importNode(
+      this.templateElement.content,
+      true,
+    );
     this.element = importedNode.firstElementChild as HTMLFormElement;
+    this.element.id = "user-input";
+
+    this.titleInputElement = this.element.querySelector(
+      "#title",
+    ) as HTMLInputElement;
+    this.descriptionInputElement = this.element.querySelector(
+      "#description",
+    ) as HTMLTextAreaElement;
+    this.mandayInputElement = this.element.querySelector(
+      "#manday",
+    ) as HTMLInputElement;
+
+    this.configure();
     this.attach();
   }
 
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.descriptionInputElement.value;
+    const enteredManday = this.mandayInputElement.value;
+
+    if (
+      validate({ value: enteredTitle, required: true, minLength: 5 })&&
+      validate({ value: enteredDescription, required: true, minLength: 5 })&&
+      validate({ value: enteredManday, required: true, minLength: 5 })
+    ) {
+      alert("入力値が正しくありません。再度お試しください。")
+      return
+    }else {
+      return[enteredTitle,enteredDescription,+enteredManday];
+    }
+  }
+
+  private clearInputs() {
+    this.titleInputElement.value = "";
+    this.descriptionInputElement.value = "";
+    this.mandayInputElement.value = "";
+  }
+
+  @autobind
+  private submitHandler(event: Event) {
+    event.preventDefault();
+    const userInput = this.gatherUserInput();
+    if (Array.isArray(userInput)) {
+      const [title, desc, manday] = userInput;
+      console.log(title, desc, manday);
+      this.clearInputs();
+    }
+  }
+
+  private configure() {
+    this.element.addEventListener("submit", this.submitHandler);
+  }
 
   private attach() {
-    this.hostElement.insertAdjacentElement("afterbegin",this.element);
+    this.hostElement.insertAdjacentElement("afterbegin", this.element);
   }
 }
 
