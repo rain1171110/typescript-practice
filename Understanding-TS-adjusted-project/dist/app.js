@@ -4,6 +4,31 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+function validate(validatableInput) {
+    let isValid = true;
+    if (validatableInput.required) {
+        isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+    }
+    if (validatableInput.minLength != null &&
+        typeof validatableInput.value === "string") {
+        isValid =
+            isValid && validatableInput.value.length >= validatableInput.minLength;
+    }
+    if (validatableInput.maxLength != null &&
+        typeof validatableInput.value === "string") {
+        isValid =
+            isValid && validatableInput.value.length <= validatableInput.maxLength;
+    }
+    if (validatableInput.min != null &&
+        typeof validatableInput.value === "number") {
+        isValid = isValid && validatableInput.value >= validatableInput.min;
+    }
+    if (validatableInput.max != null &&
+        typeof validatableInput.value === "number") {
+        isValid = isValid && validatableInput.value <= validatableInput.max;
+    }
+    return isValid;
+}
 function autobind(_, _2, descriptor) {
     const originalMethod = descriptor.value;
     const adjDescriptor = {
@@ -14,45 +39,6 @@ function autobind(_, _2, descriptor) {
         },
     };
     return adjDescriptor;
-}
-const registeredValidators = {};
-function Required(target, propName) {
-    var _a, _b;
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propName]: [
-            ...((_b = (_a = registeredValidators[target.constructor.name]) === null || _a === void 0 ? void 0 : _a[propName]) !== null && _b !== void 0 ? _b : []),
-            "required",
-        ] });
-}
-function PositiveNumber(target, propName) {
-    var _a, _b;
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propName]: [
-            ...((_b = (_a = registeredValidators[target.constructor.name]) === null || _a === void 0 ? void 0 : _a[propName]) !== null && _b !== void 0 ? _b : []),
-            "positive",
-        ] });
-}
-function validate(obj) {
-    const objValidatorConfig = registeredValidators[obj.constructor.name];
-    if (!objValidatorConfig) {
-        return true;
-    }
-    let isValid = true;
-    for (const prop in objValidatorConfig) {
-        const validators = objValidatorConfig[prop];
-        if (!validators) {
-            continue;
-        }
-        for (const validator of validators) {
-            switch (validator) {
-                case "required":
-                    isValid = isValid && !!obj[prop];
-                    break;
-                case "positive":
-                    isValid = isValid && obj[prop] > 0;
-                    break;
-            }
-        }
-    }
-    return isValid;
 }
 class ProjectInput {
     constructor() {

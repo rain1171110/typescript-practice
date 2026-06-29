@@ -136,6 +136,50 @@
 // });
 
 //模範解答-------------------------------------------------------------------------------------
+//validate
+interface validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function validate(validatableInput: validatable) {
+  let isValid = true;
+  if (validatableInput.required) {
+    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+  }
+  if (
+    validatableInput.minLength != null &&
+    typeof validatableInput.value === "string"
+  ) {
+    isValid =
+      isValid && validatableInput.value.length >= validatableInput.minLength;
+  }
+  if (
+    validatableInput.maxLength != null &&
+    typeof validatableInput.value === "string"
+  ) {
+    isValid =
+      isValid && validatableInput.value.length <= validatableInput.maxLength;
+  }
+  if (
+    validatableInput.min != null &&
+    typeof validatableInput.value === "number"
+  ) {
+    isValid = isValid && validatableInput.value >= validatableInput.min;
+  }
+  if (
+    validatableInput.max != null &&
+    typeof validatableInput.value === "number"
+  ) {
+    isValid = isValid && validatableInput.value <= validatableInput.max;
+  }
+  return isValid;
+}
+
 //autobind decorator
 
 function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
@@ -148,65 +192,6 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
     },
   };
   return adjDescriptor;
-}
-
-//interface
-interface validatorConfig {
-  [prop: string]: {
-    [validatableProp: string]: string[]; // ["required","positive"]
-  };
-}
-
-const registeredValidators: validatorConfig = {};
-
-function Required(target: any, propName: string) {
-  registeredValidators[target.constructor.name] = {
-    ...registeredValidators[target.constructor.name],
-    [propName]: [
-      ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
-      "required",
-    ],
-  };
-}
-
-function PositiveNumber(target: any, propName: string) {
-  registeredValidators[target.constructor.name] = {
-    ...registeredValidators[target.constructor.name],
-    [propName]: [
-      ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
-      "positive",
-    ],
-  };
-}
-
-function validate(obj: any) {
-  const objValidatorConfig = registeredValidators[obj.constructor.name];
-
-  if (!objValidatorConfig) {
-    return true;
-  }
-
-  let isValid = true;
-
-  for (const prop in objValidatorConfig) {
-    const validators = objValidatorConfig[prop];
-
-    if (!validators) {
-      continue;
-    }
-
-    for (const validator of validators) {
-      switch (validator) {
-        case "required":
-          isValid = isValid && !!obj[prop];
-          break;
-        case "positive":
-          isValid = isValid && obj[prop] > 0;
-          break;
-      }
-    }
-  }
-  return isValid;
 }
 
 //ProjectInput Class
@@ -250,15 +235,17 @@ class ProjectInput {
     const enteredDescription = this.descriptionInputElement.value;
     const enteredManday = this.mandayInputElement.value;
 
+
+
     if (
-      validate({ value: enteredTitle, required: true, minLength: 5 })&&
-      validate({ value: enteredDescription, required: true, minLength: 5 })&&
+      validate({ value: enteredTitle, required: true, minLength: 5 }) &&
+      validate({ value: enteredDescription, required: true, minLength: 5 }) &&
       validate({ value: enteredManday, required: true, minLength: 5 })
     ) {
-      alert("入力値が正しくありません。再度お試しください。")
-      return
-    }else {
-      return[enteredTitle,enteredDescription,+enteredManday];
+      alert("入力値が正しくありません。再度お試しください。");
+      return;
+    } else {
+      return [enteredTitle, enteredDescription, +enteredManday];
     }
   }
 
