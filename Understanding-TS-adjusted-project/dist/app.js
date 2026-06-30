@@ -40,6 +40,63 @@ function autobind(_, _2, descriptor) {
     };
     return adjDescriptor;
 }
+class ProjectState {
+    constructor() {
+        this.listeners = [];
+        this.projects = [];
+    }
+    addListener(listenerFn) {
+        this.listeners.push(listenerFn);
+    }
+    addProject(title, description, numOfPeople) {
+        const newProject = {
+            title: title,
+            description: description,
+            people: numOfPeople,
+        };
+        this.projects.push(newProject);
+        for (const listenerFn of this.listeners) {
+            listenerFn(this.projects.slice());
+        }
+        console.log(this.projects);
+    }
+}
+const projectState = new ProjectState();
+class ProjectList {
+    constructor(type) {
+        this.type = type;
+        this.assignedProjects = [];
+        this.templateElement = document.getElementById("project-list");
+        this.hostElement = document.getElementById("app");
+        const importedNode = document.importNode(this.templateElement.content, true);
+        this.element = importedNode.firstElementChild;
+        this.element.id = `${this.type}-projects`;
+        projectState.addListener((projects) => {
+            this.assignedProjects = projects;
+            this.renderProjects();
+        });
+        this.attach();
+        this.renderContent();
+    }
+    attach() {
+        this.hostElement.insertAdjacentElement("beforeend", this.element);
+    }
+    renderContent() {
+        const listId = `${this.type}-projects-list`;
+        this.element.querySelector("ul").id = listId;
+        this.element.querySelector("h2").textContent =
+            this.type === "active" ? "実行中プロジェクト" : "完了プロジェクト";
+    }
+    renderProjects() {
+        const listEl = document.getElementById(`${this.type}-projects-list`);
+        listEl.innerHTML = "";
+        for (const prjItem of this.assignedProjects) {
+            const listItem = document.createElement("li");
+            listItem.textContent = prjItem.title;
+            listEl.appendChild(listItem);
+        }
+    }
+}
 class ProjectInput {
     constructor() {
         this.templateElement = document.getElementById("project-input");
@@ -49,35 +106,50 @@ class ProjectInput {
         this.element.id = "user-input";
         this.titleInputElement = this.element.querySelector("#title");
         this.descriptionInputElement = this.element.querySelector("#description");
-        this.mandayInputElement = this.element.querySelector("#manday");
+        this.peopleInputElement = this.element.querySelector("#people");
         this.configure();
         this.attach();
     }
     gatherUserInput() {
         const enteredTitle = this.titleInputElement.value;
         const enteredDescription = this.descriptionInputElement.value;
-        const enteredManday = this.mandayInputElement.value;
-        if (validate({ value: enteredTitle, required: true, minLength: 5 }) &&
-            validate({ value: enteredDescription, required: true, minLength: 5 }) &&
-            validate({ value: enteredManday, required: true, minLength: 5 })) {
+        const enteredPeople = this.peopleInputElement.value;
+        const titlevalidatable = {
+            value: enteredTitle,
+            required: true,
+        };
+        const descriptionvalidatable = {
+            value: enteredDescription,
+            required: true,
+            minLength: 5,
+        };
+        const peoplevalidatable = {
+            value: +enteredPeople,
+            required: true,
+            min: 1,
+            max: 1000,
+        };
+        if (!validate(titlevalidatable) ||
+            !validate(descriptionvalidatable) ||
+            !validate(peoplevalidatable)) {
             alert("入力値が正しくありません。再度お試しください。");
             return;
         }
         else {
-            return [enteredTitle, enteredDescription, +enteredManday];
+            return [enteredTitle, enteredDescription, +enteredPeople];
         }
     }
     clearInputs() {
         this.titleInputElement.value = "";
         this.descriptionInputElement.value = "";
-        this.mandayInputElement.value = "";
+        this.peopleInputElement.value = "";
     }
     submitHandler(event) {
         event.preventDefault();
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput)) {
-            const [title, desc, manday] = userInput;
-            console.log(title, desc, manday);
+            const [title, desc, people] = userInput;
+            projectState.addProject(title, desc, people);
             this.clearInputs();
         }
     }
@@ -92,5 +164,7 @@ __decorate([
     autobind
 ], ProjectInput.prototype, "submitHandler", null);
 const prjInput = new ProjectInput();
+const activePrjList = new ProjectList("active");
+const finishedPrjList = new ProjectList("finished");
 export {};
 //# sourceMappingURL=app.js.map

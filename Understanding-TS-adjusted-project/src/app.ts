@@ -1,143 +1,6 @@
-// interface validatorConfig {
-//   [prop: string]: {
-//     [validatableProp: string]: string[];
-//   };
-// }
-
-// const registeredValidators: validatorConfig = {};
-
-// function Required(target: any, propName: string) {
-//   registeredValidators[target.constructor.name] = {
-//     ...registeredValidators[target.constructor.name],
-//     [propName]: [
-//       ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
-//       "required",
-//     ],
-//   };
-// }
-
-// function PositiveNumber(target: any, propName: string) {
-//   registeredValidators[target.constructor.name] = {
-//     ...registeredValidators[target.constructor.name],
-//     [propName]: [
-//       ...(registeredValidators[target.constructor.name]?.[propName] ?? []),
-//       "positive",
-//     ],
-//   };
-// }
-
-// function validate(obj: any) {
-//   const objValidatorConfig = registeredValidators[obj.constructor.name];
-
-//   if (!objValidatorConfig) {
-//     return true;
-//   }
-
-//   let isValid = true;
-
-//   for (const prop in objValidatorConfig) {
-//     const validators = objValidatorConfig[prop];
-
-//     if (!validators) {
-//       continue;
-//     }
-
-//     for (const validator of validators) {
-//       switch (validator) {
-//         case "required":
-//           isValid = isValid && !!obj[prop];
-//           break;
-//         case "positive":
-//           isValid = isValid && obj[prop] > 0;
-//           break;
-//       }
-//     }
-//   }
-//   return isValid;
-// }
-
-// class Project {
-//   @Required
-//   title: string;
-//   @Required
-//   description: string;
-//   @PositiveNumber
-//   manday: number;
-
-//   constructor(t: string, d: string, m: number) {
-//     this.title = t;
-//     this.description = d;
-//     this.manday = m;
-//   }
-// }
-
-// const projectInputTemplate = document.getElementById(
-//   "project-input",
-// ) as HTMLTemplateElement;
-// const projectSingleTemplate = document.getElementById(
-//   "single-project",
-// ) as HTMLTemplateElement;
-// const projectListTemplate = document.getElementById(
-//   "project-list",
-// ) as HTMLTemplateElement;
-
-// const app = document.getElementById("app") as HTMLDivElement;
-
-// const importedInputNode = document.importNode(
-//   projectInputTemplate.content,
-//   true,
-// );
-
-// const importedListNode = document.importNode(projectListTemplate.content, true);
-
-// app.appendChild(importedInputNode);
-// app.appendChild(importedListNode);
-
-// const listTitle = document.querySelector(".projects h2")!;
-// listTitle.textContent = "有効なプロジェクト";
-// const projectList = document.querySelector(".projects ul")!;
-
-// const projectForm = document.querySelector("form")!;
-// projectForm.addEventListener("submit", (event) => {
-//   event.preventDefault();
-
-//   const titleEl = document.getElementById("title") as HTMLInputElement;
-//   const descriptionEl = document.getElementById(
-//     "description",
-//   ) as HTMLTextAreaElement;
-//   const mandayEL = document.getElementById("manday") as HTMLInputElement;
-
-//   const title = titleEl.value;
-//   const description = descriptionEl.value;
-//   const manday = +mandayEL.value;
-
-//   const createdProject = new Project(title, description, manday);
-
-//   if (!validate(createdProject)) {
-//     alert("正しく入力して下さい");
-//     return;
-//   }
-
-//   const importedProjectNode = document.importNode(
-//     projectSingleTemplate.content,
-//     true,
-//   );
-
-//   const projectItem = importedProjectNode.firstElementChild as HTMLElement;
-//   projectItem.querySelector("h2")!.textContent = createdProject.title;
-
-//   const paragraphs = projectItem.querySelectorAll("p");
-//   paragraphs[0]!.textContent = createdProject.description;
-//   paragraphs[1]!.textContent = `${createdProject.manday}人日`;
-
-//   projectList.appendChild(projectItem);
-
-//   projectForm.reset();
-// });
-
-//模範解答-------------------------------------------------------------------------------------
 //validate
-interface validatable {
+
+interface Validatable {
   value: string | number;
   required?: boolean;
   minLength?: number;
@@ -146,7 +9,7 @@ interface validatable {
   max?: number;
 }
 
-function validate(validatableInput: validatable) {
+function validate(validatableInput: Validatable) {
   let isValid = true;
   if (validatableInput.required) {
     isValid = isValid && validatableInput.value.toString().trim().length !== 0;
@@ -194,6 +57,85 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return adjDescriptor;
 }
 
+//ProjectState Class
+class ProjectState {
+  private listeners: Function[] = [];
+  private projects: any[] = [];
+
+  addListener(listenerFn: Function) {
+    this.listeners.push(listenerFn);
+  }
+
+  addProject(title: string, description: string, numOfPeople: number) {
+    const newProject = {
+      title: title,
+      description: description,
+      people: numOfPeople,
+    };
+    this.projects.push(newProject);
+
+    for (const listenerFn of this.listeners) {
+      listenerFn(this.projects.slice());
+    }
+
+    console.log(this.projects);
+  }
+}
+
+const projectState = new ProjectState();
+
+//ProjectList Class
+class ProjectList {
+  templateElement: HTMLTemplateElement;
+  hostElement: HTMLDivElement;
+  element: HTMLElement;
+  assignedProjects: any[] = [];
+
+  constructor(private type: "active" | "finished") {
+    this.templateElement = document.getElementById(
+      "project-list",
+    )! as HTMLTemplateElement;
+    this.hostElement = document.getElementById("app")! as HTMLDivElement;
+
+    const importedNode = document.importNode(
+      this.templateElement.content,
+      true,
+    );
+    this.element = importedNode.firstElementChild as HTMLElement;
+    this.element.id = `${this.type}-projects`;
+    projectState.addListener((projects: any[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
+    this.attach();
+    this.renderContent();
+  }
+  private attach() {
+    this.hostElement.insertAdjacentElement("beforeend", this.element);
+  }
+
+  private renderContent() {
+    const listId = `${this.type}-projects-list`;
+    this.element.querySelector("ul")!.id = listId;
+    this.element.querySelector("h2")!.textContent =
+      this.type === "active" ? "実行中プロジェクト" : "完了プロジェクト";
+  }
+
+  private renderProjects() {
+    const listEl = document.getElementById(
+      `${this.type}-projects-list`,
+    )! as HTMLUListElement;
+
+    listEl.innerHTML = "";
+
+    for (const prjItem of this.assignedProjects) {
+      const listItem = document.createElement("li");
+      listItem.textContent = prjItem.title;
+      listEl.appendChild(listItem);
+    }
+  }
+}
+
 //ProjectInput Class
 class ProjectInput {
   templateElement: HTMLTemplateElement;
@@ -201,7 +143,7 @@ class ProjectInput {
   element: HTMLFormElement;
   titleInputElement: HTMLInputElement;
   descriptionInputElement: HTMLTextAreaElement;
-  mandayInputElement: HTMLInputElement;
+  peopleInputElement: HTMLInputElement;
 
   constructor() {
     this.templateElement = document.getElementById(
@@ -222,8 +164,8 @@ class ProjectInput {
     this.descriptionInputElement = this.element.querySelector(
       "#description",
     ) as HTMLTextAreaElement;
-    this.mandayInputElement = this.element.querySelector(
-      "#manday",
+    this.peopleInputElement = this.element.querySelector(
+      "#people",
     ) as HTMLInputElement;
 
     this.configure();
@@ -233,26 +175,40 @@ class ProjectInput {
   private gatherUserInput(): [string, string, number] | void {
     const enteredTitle = this.titleInputElement.value;
     const enteredDescription = this.descriptionInputElement.value;
-    const enteredManday = this.mandayInputElement.value;
+    const enteredPeople = this.peopleInputElement.value;
 
-
+    const titlevalidatable: Validatable = {
+      value: enteredTitle,
+      required: true,
+    };
+    const descriptionvalidatable: Validatable = {
+      value: enteredDescription,
+      required: true,
+      minLength: 5,
+    };
+    const peoplevalidatable: Validatable = {
+      value: +enteredPeople,
+      required: true,
+      min: 1,
+      max: 1000,
+    };
 
     if (
-      validate({ value: enteredTitle, required: true, minLength: 5 }) &&
-      validate({ value: enteredDescription, required: true, minLength: 5 }) &&
-      validate({ value: enteredManday, required: true, minLength: 5 })
+      !validate(titlevalidatable) ||
+      !validate(descriptionvalidatable) ||
+      !validate(peoplevalidatable)
     ) {
       alert("入力値が正しくありません。再度お試しください。");
       return;
     } else {
-      return [enteredTitle, enteredDescription, +enteredManday];
+      return [enteredTitle, enteredDescription, +enteredPeople];
     }
   }
 
   private clearInputs() {
     this.titleInputElement.value = "";
     this.descriptionInputElement.value = "";
-    this.mandayInputElement.value = "";
+    this.peopleInputElement.value = "";
   }
 
   @autobind
@@ -260,8 +216,8 @@ class ProjectInput {
     event.preventDefault();
     const userInput = this.gatherUserInput();
     if (Array.isArray(userInput)) {
-      const [title, desc, manday] = userInput;
-      console.log(title, desc, manday);
+      const [title, desc, people] = userInput;
+      projectState.addProject(title, desc, people);
       this.clearInputs();
     }
   }
@@ -276,3 +232,5 @@ class ProjectInput {
 }
 
 const prjInput = new ProjectInput();
+const activePrjList = new ProjectList("active");
+const finishedPrjList = new ProjectList("finished");
