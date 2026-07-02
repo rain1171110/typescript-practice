@@ -1,5 +1,4 @@
 //validate
-
 interface Validatable {
   value: string | number;
   required?: boolean;
@@ -57,21 +56,39 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return adjDescriptor;
 }
 
+enum ProjectStatus {
+  Active,
+  Finished,
+}
+
+//Project Class
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus,
+  ) {}
+}
+
 //ProjectState Class
 class ProjectState {
   private listeners: Function[] = [];
-  private projects: any[] = [];
+  private projects: Project[] = [];
 
   addListener(listenerFn: Function) {
     this.listeners.push(listenerFn);
   }
 
   addProject(title: string, description: string, numOfPeople: number) {
-    const newProject = {
-      title: title,
-      description: description,
-      people: numOfPeople,
-    };
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      numOfPeople,
+      ProjectStatus.Active,
+    );
     this.projects.push(newProject);
 
     for (const listenerFn of this.listeners) {
@@ -103,8 +120,15 @@ class ProjectList {
     );
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
-    projectState.addListener((projects: any[]) => {
-      this.assignedProjects = projects;
+    projectState.addListener((projects: Project[]) => {
+      const relevantProjects = projects.filter((prj) => {
+        if (this.type === "active") {
+          return prj.status === ProjectStatus.Active;
+        }
+        return prj.status === ProjectStatus.Finished;
+      });
+
+      this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
     this.attach();
