@@ -4,32 +4,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-function validate(validatableInput) {
+function validate(validateInput) {
     let isValid = true;
-    if (validatableInput.required) {
-        isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+    if (validateInput.required) {
+        isValid = isValid && validateInput.value.toString().trim().length !== 0;
     }
-    if (validatableInput.minLength != null &&
-        typeof validatableInput.value === "string") {
+    if (validateInput.minLength != null &&
+        typeof validateInput.value === "string") {
         isValid =
-            isValid && validatableInput.value.length >= validatableInput.minLength;
+            isValid && validateInput.value.length >= validateInput.minLength;
     }
-    if (validatableInput.maxLength != null &&
-        typeof validatableInput.value === "string") {
+    if (validateInput.maxLength != null &&
+        typeof validateInput.value === "string") {
         isValid =
-            isValid && validatableInput.value.length <= validatableInput.maxLength;
+            isValid && validateInput.value.length <= validateInput.maxLength;
     }
-    if (validatableInput.min != null &&
-        typeof validatableInput.value === "number") {
-        isValid = isValid && validatableInput.value >= validatableInput.min;
+    if (validateInput.min != null &&
+        typeof validateInput.value === "number") {
+        isValid = isValid && validateInput.value >= validateInput.min;
     }
-    if (validatableInput.max != null &&
-        typeof validatableInput.value === "number") {
-        isValid = isValid && validatableInput.value <= validatableInput.max;
+    if (validateInput.max != null &&
+        typeof validateInput.value === "number") {
+        isValid = isValid && validateInput.value <= validateInput.max;
     }
     return isValid;
 }
-function autobind(_, _2, descriptor) {
+function autoBind(_, _2, descriptor) {
     const originalMethod = descriptor.value;
     const adjDescriptor = {
         configurable: true,
@@ -40,11 +40,6 @@ function autobind(_, _2, descriptor) {
     };
     return adjDescriptor;
 }
-var ProjectStatus;
-(function (ProjectStatus) {
-    ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
-    ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
-})(ProjectStatus || (ProjectStatus = {}));
 class Project {
     constructor(id, title, description, people, status) {
         this.id = id;
@@ -54,6 +49,11 @@ class Project {
         this.status = status;
     }
 }
+var ProjectStatus;
+(function (ProjectStatus) {
+    ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
+    ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
+})(ProjectStatus || (ProjectStatus = {}));
 class ProjectState {
     constructor() {
         this.listeners = [];
@@ -144,24 +144,24 @@ class ProjectInput {
         const enteredTitle = this.titleInputElement.value;
         const enteredDescription = this.descriptionInputElement.value;
         const enteredPeople = this.peopleInputElement.value;
-        const titlevalidatable = {
+        const titleValidate = {
             value: enteredTitle,
             required: true,
         };
-        const descriptionvalidatable = {
+        const descriptionValidate = {
             value: enteredDescription,
             required: true,
             minLength: 5,
         };
-        const peoplevalidatable = {
+        const peopleValidate = {
             value: +enteredPeople,
             required: true,
             min: 1,
             max: 1000,
         };
-        if (!validate(titlevalidatable) ||
-            !validate(descriptionvalidatable) ||
-            !validate(peoplevalidatable)) {
+        if (!validate(titleValidate) ||
+            !validate(descriptionValidate) ||
+            !validate(peopleValidate)) {
             alert("入力値が正しくありません。再度お試しください。");
             return;
         }
@@ -191,7 +191,7 @@ class ProjectInput {
     }
 }
 __decorate([
-    autobind
+    autoBind
 ], ProjectInput.prototype, "submitHandler", null);
 const prjInput = new ProjectInput();
 const activePrjList = new ProjectList("active");

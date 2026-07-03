@@ -1,5 +1,5 @@
-//validate
-interface Validatable {
+//validate ---------------------------------
+interface Validate {
   value: string | number;
   required?: boolean;
   minLength?: number;
@@ -8,43 +8,43 @@ interface Validatable {
   max?: number;
 }
 
-function validate(validatableInput: Validatable) {
+function validate(validateInput: Validate) {
   let isValid = true;
-  if (validatableInput.required) {
-    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+  if (validateInput.required) {
+    isValid = isValid && validateInput.value.toString().trim().length !== 0;
   }
   if (
-    validatableInput.minLength != null &&
-    typeof validatableInput.value === "string"
+    validateInput.minLength != null &&
+    typeof validateInput.value === "string"
   ) {
     isValid =
-      isValid && validatableInput.value.length >= validatableInput.minLength;
+      isValid && validateInput.value.length >= validateInput.minLength;
   }
   if (
-    validatableInput.maxLength != null &&
-    typeof validatableInput.value === "string"
+    validateInput.maxLength != null &&
+    typeof validateInput.value === "string"
   ) {
     isValid =
-      isValid && validatableInput.value.length <= validatableInput.maxLength;
+      isValid && validateInput.value.length <= validateInput.maxLength;
   }
   if (
-    validatableInput.min != null &&
-    typeof validatableInput.value === "number"
+    validateInput.min != null &&
+    typeof validateInput.value === "number"
   ) {
-    isValid = isValid && validatableInput.value >= validatableInput.min;
+    isValid = isValid && validateInput.value >= validateInput.min;
   }
   if (
-    validatableInput.max != null &&
-    typeof validatableInput.value === "number"
+    validateInput.max != null &&
+    typeof validateInput.value === "number"
   ) {
-    isValid = isValid && validatableInput.value <= validatableInput.max;
+    isValid = isValid && validateInput.value <= validateInput.max;
   }
   return isValid;
 }
 
-//autobind decorator
+//autoBind decorator -------------------------------
 
-function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+function autoBind(_: any, _2: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
   const adjDescriptor: PropertyDescriptor = {
     configurable: true,
@@ -56,10 +56,7 @@ function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return adjDescriptor;
 }
 
-enum ProjectStatus {
-  Active,
-  Finished,
-}
+
 
 //Project Class
 class Project {
@@ -72,7 +69,12 @@ class Project {
   ) {}
 }
 
-//ProjectState Class
+enum ProjectStatus {
+  Active,
+  Finished,
+}
+
+//ProjectState Class --------------------------------------
 class ProjectState {
   private listeners: Function[] = [];
   private projects: Project[] = [];
@@ -110,7 +112,7 @@ class ProjectState {
 
 const projectState = new ProjectState();
 
-//ProjectList Class
+//ProjectList Class----------------------------
 class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
@@ -179,7 +181,7 @@ class ProjectList {
   }
 }
 
-//ProjectInput Class
+//ProjectInput Class --------------------------------------
 class ProjectInput {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
@@ -220,16 +222,16 @@ class ProjectInput {
     const enteredDescription = this.descriptionInputElement.value;
     const enteredPeople = this.peopleInputElement.value;
 
-    const titlevalidatable: Validatable = {
+    const titleValidate: Validate = {
       value: enteredTitle,
       required: true,
     };
-    const descriptionvalidatable: Validatable = {
+    const descriptionValidate: Validate = {
       value: enteredDescription,
       required: true,
       minLength: 5,
     };
-    const peoplevalidatable: Validatable = {
+    const peopleValidate: Validate = {
       value: +enteredPeople,
       required: true,
       min: 1,
@@ -237,9 +239,9 @@ class ProjectInput {
     };
 
     if (
-      !validate(titlevalidatable) ||
-      !validate(descriptionvalidatable) ||
-      !validate(peoplevalidatable)
+      !validate(titleValidate) ||
+      !validate(descriptionValidate) ||
+      !validate(peopleValidate)
     ) {
       alert("入力値が正しくありません。再度お試しください。");
       return;
@@ -254,7 +256,7 @@ class ProjectInput {
     this.peopleInputElement.value = "";
   }
 
-  @autobind
+  @autoBind
   private submitHandler(event: Event) {
     event.preventDefault();
     const userInput = this.gatherUserInput();
