@@ -65,10 +65,19 @@ class ProjectState {
     addProject(title, description, numOfPeople) {
         const newProject = new Project(Math.random().toString(), title, description, numOfPeople, ProjectStatus.Active);
         this.projects.push(newProject);
+        this.updateListeners();
+    }
+    moveProject(projectId, newStatus) {
+        const project = this.projects.find((prj) => prj.id === projectId);
+        if (project && project.status !== newStatus) {
+            project.status = newStatus;
+            this.updateListeners();
+        }
+    }
+    updateListeners() {
         for (const listenerFn of this.listeners) {
             listenerFn(this.projects.slice());
         }
-        console.log(this.projects);
     }
 }
 const projectState = new ProjectState();
@@ -109,6 +118,11 @@ class ProjectList {
         for (const prjItem of this.assignedProjects) {
             const listItem = document.createElement("li");
             listItem.textContent = prjItem.title;
+            listItem.addEventListener("click", () => {
+                projectState.moveProject(prjItem.id, this.type === "active"
+                    ? ProjectStatus.Finished
+                    : ProjectStatus.Active);
+            });
             listEl.appendChild(listItem);
         }
     }

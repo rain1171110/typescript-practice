@@ -90,12 +90,21 @@ class ProjectState {
       ProjectStatus.Active,
     );
     this.projects.push(newProject);
+    this.updateListeners();
+  }
 
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find((prj) => prj.id === projectId);
+
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
+    }
+  }
+  private updateListeners() {
     for (const listenerFn of this.listeners) {
       listenerFn(this.projects.slice());
     }
-
-    console.log(this.projects);
   }
 }
 
@@ -106,7 +115,7 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement;
-  assignedProjects: any[] = [];
+  assignedProjects: Project[] = [];
 
   constructor(private type: "active" | "finished") {
     this.templateElement = document.getElementById(
@@ -155,6 +164,16 @@ class ProjectList {
     for (const prjItem of this.assignedProjects) {
       const listItem = document.createElement("li");
       listItem.textContent = prjItem.title;
+
+      listItem.addEventListener("click", () => {
+        projectState.moveProject(
+          prjItem.id,
+          this.type === "active"
+            ? ProjectStatus.Finished
+            : ProjectStatus.Active,
+        );
+      });
+
       listEl.appendChild(listItem);
     }
   }
