@@ -4,8 +4,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var ProjectStatus;
+(function (ProjectStatus) {
+    ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
+    ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
+})(ProjectStatus || (ProjectStatus = {}));
+class Project {
+    constructor(id, title, description, manday, status) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.manday = manday;
+        this.status = status;
+    }
+}
 class ProjectState {
     constructor() {
+        this.listeners = [];
         this.projects = [];
     }
     static getInstance() {
@@ -15,14 +30,15 @@ class ProjectState {
         this.instance = new ProjectState();
         return this.instance;
     }
+    addListener(listenerFn) {
+        this.listeners.push(listenerFn);
+    }
     addProject(title, description, manday) {
-        const newProject = {
-            id: Math.random().toString(),
-            title: title,
-            description: description,
-            manday: manday,
-        };
+        const newProject = new Project(Math.random().toString(), title, description, manday, ProjectStatus.Active);
         this.projects.push(newProject);
+        for (const listenerFn of this.listeners) {
+            listenerFn(this.projects.slice());
+        }
     }
 }
 const projectState = ProjectState.getInstance();
@@ -67,11 +83,24 @@ class ProjectList {
         this.type = type;
         this.templateElement = document.getElementById("project-list");
         this.hostElement = document.getElementById("app");
+        this.assignedProjects = [];
         const importedNode = document.importNode(this.templateElement.content, true);
         this.element = importedNode.firstElementChild;
         this.element.id = `${this.type}-projects`;
+        projectState.addListener((projects) => {
+            this.assignedProjects = projects;
+            this.renderProjects();
+        });
         this.attach();
         this.renderContent();
+    }
+    renderProjects() {
+        const listEl = document.getElementById(`${this.type}-projects-list`);
+        for (const prjItem of this.assignedProjects) {
+            const listItem = document.createElement("li");
+            listItem.textContent = prjItem.title;
+            listEl === null || listEl === void 0 ? void 0 : listEl.appendChild(listItem);
+        }
     }
     renderContent() {
         const listId = `${this.type}-projects-list`;
@@ -103,11 +132,11 @@ class ProjectInput {
         const titleValidatable = {
             value: enteredTitle,
             required: true,
-            minLength: 5,
         };
         const descriptionValidatable = {
             value: enteredDescription,
             required: true,
+            minLength: 5,
         };
         const mandayValidatable = {
             value: +enteredManday,

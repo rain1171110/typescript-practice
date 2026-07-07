@@ -1,6 +1,26 @@
+//Project Type
+enum ProjectStatus {
+  Active,
+  Finished,
+}
+
+//Project Type
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public manday: number,
+    public status: ProjectStatus,
+  ) {}
+}
+
 //Project State Management
+type Listener = (items :Project[]) => void;
+
 class ProjectState {
-  private projects: any[] = [];
+  private listeners: Listener[] = [];
+  private projects: Project[] = [];
   private static instance: ProjectState;
 
   private constructor() {}
@@ -13,14 +33,23 @@ class ProjectState {
     return this.instance;
   }
 
+  addListener(listenerFn: Listener) {
+    this.listeners.push(listenerFn);
+  }
+
   addProject(title: string, description: string, manday: number) {
-    const newProject = {
-      id: Math.random().toString(),
-      title: title,
-      description: description,
-      manday: manday,
-    };
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      manday,
+      ProjectStatus.Active,
+    );
+
     this.projects.push(newProject);
+    for (const listenerFn of this.listeners) {
+      listenerFn(this.projects.slice());
+    }
   }
 }
 
@@ -88,12 +117,14 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement;
+  assignedProjects: Project[];
 
   constructor(private type: "active" | "finished") {
     this.templateElement = document.getElementById(
       "project-list",
     )! as HTMLTemplateElement;
     this.hostElement = document.getElementById("app")! as HTMLDivElement;
+    this.assignedProjects = [];
 
     const importedNode = document.importNode(
       this.templateElement.content,
@@ -101,8 +132,25 @@ class ProjectList {
     );
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
+
+    projectState.addListener((projects: Project[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
+
     this.attach();
     this.renderContent();
+  }
+
+  private renderProjects() {
+    const listEl = document.getElementById(
+      `${this.type}-projects-list`,
+    )! as HTMLUListElement;
+    for (const prjItem of this.assignedProjects) {
+      const listItem = document.createElement("li");
+      listItem.textContent = prjItem.title;
+      listEl?.appendChild(listItem);
+    }
   }
 
   private renderContent() {
@@ -161,11 +209,11 @@ class ProjectInput {
     const titleValidatable: Validatable = {
       value: enteredTitle,
       required: true,
-      minLength: 5,
     };
     const descriptionValidatable: Validatable = {
       value: enteredDescription,
       required: true,
+      minLength: 5,
     };
     const mandayValidatable: Validatable = {
       value: +enteredManday,
